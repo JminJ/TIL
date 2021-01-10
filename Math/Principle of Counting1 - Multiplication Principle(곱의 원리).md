@@ -10,7 +10,7 @@
 > Principle of Counting - Multiplication Principle(곱의 원리)
 
 n1 부터 nm 까지의 outcome이 있다고 했을때 그 m개의 sub-experiment는 아래 수식을 만족한다.
-<img src = 'image\2020_12_29_1.png'>
+<img src = "/image/2020_12_29_1.png">
 
 ## 예제 ##
 > 프린터로 6자의 문자를 찍으려 한다. 처음 3개의 문자는 알파벳만 허용되며 나머지 3문자는 숫자만 허용된다. 조합할 수 있는 문자의 수는 얼마인가?
