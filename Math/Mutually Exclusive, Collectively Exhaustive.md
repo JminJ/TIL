@@ -5,10 +5,10 @@
 * Collectively Exhaustive
 
 ## 정리 ##
-> **Mutually Exclusive**
+> ***Mutually Exclusive***
 
 어떤 이벤트 또는 사건이 발생하게 되면 다른 이벤트는 발생하지 않는다는 것을 뜻한다. 즉 어떤 sample point도 두 가의 집합에 포함되지 않는 것을 의미한다.
->**Collectively Exhaustive**
+>***Collectively Exhaustive***
 
 sample space에서 빠져나오는 outcome은 없다는 뜻이다.
 * A∪B∪C = S
