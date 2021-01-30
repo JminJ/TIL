@@ -16,7 +16,10 @@ class attention(nn.Module):
         self.encoder_hidden = self.encoder.return_output_list()
 
     def forward(self, data):
-        
+        assert data.shape[2] == self.input_size
+        en_fir_hidden = torch.FloatTensor(torch.randn(self.num_layers, self.batch_size, self.hidden_size))
+        en_fir_cell = torch.FloatTensor(torch.randn(self.num_layers, self.batch_size, self.hidden_size))
+        l_hidden, l_cell = self.encoder(data)
 
 class Encoder(nn.Module):
     def __init__(self, input_size, hidden_size, dropout_p, n_layers = 2):
@@ -39,7 +42,7 @@ class Encoder(nn.Module):
 
     def forward(self, data):
         output, (hidden, cell) = self.lstm(data)
-        self.en_output_list.append(output) 
+        self.en_output_list.append(hidden) 
 
         return hidden, cell
 
