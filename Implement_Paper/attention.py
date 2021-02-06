@@ -2,6 +2,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import time
+import math
+
+SOS_token = 0
+EOS_token = 1
+
 class attention(nn.Module):
     def __init__(self, Encoder, Decoder, input_size, hidden_size, output_size, dropout_p, n_layers = 2):
         super().__init__()
@@ -97,7 +103,7 @@ MAX_LENGTH = 10
 
 teacher_forcing_ratio = 0.5
 
-def train(input_tensor, target_tensor, encoder, decoder, attention, encoder_optimizer, decoder_optimizer, criterion, max_length = MAX_LENGTH):
+def train(input_tensor, target_tensor, encoder, decoder, attention, encoder_optimizer, decoder_optimizer, attention_optimizer, criterion, max_length = MAX_LENGTH):
     encoder_hidden = encoder.return_fir_hidden()
     encoder_cell = encoder.return_fir_cell()
 
@@ -123,4 +129,60 @@ def train(input_tensor, target_tensor, encoder, decoder, attention, encoder_opti
 
     if use_teacher_forcing:
         for i in range(target_length):
-            pass
+            decoder_output, decoder_hidden, decoder_attn = attention(decoder_input, decoder_hidden, encoder_outputs)
+            decoder_output, decoder_hidden, decoder_attn = decoder(decoder_output, decodder_hidden, decoder_attn)
+
+            loss += criterion(decoder_output, target_tensor[i])
+            decoder_input = target_tensor[i]
+    
+    else:
+        for i in range(target_length):
+            decoder_output, decoder_hidden, decoder_attn = attention(decoder_input, decoder_hidden, encoder_outputs)
+            decoder_output, decoder_hidden, decoder_attn = decoder(decoder_output, decodder_hidden, decoder_attn)
+
+            topv, topi = decoder_output.topk(1)
+            decoder_input = topi.squeeze().detach()
+
+            loss += criterion(decoder_output, target_tensor[i])
+            if decoder_input.item() == EOS_token:
+                break
+    
+    loss.backward()
+
+    encoder_optimizer.step()
+    decoder_optimizer.step()
+
+    return loss.item() / target_length
+
+
+# 학습 데이터 준비 : indexesFromSentence ~ tensorsFromPair
+def indexesFromSentence(lang, sentence):
+    return [lang.word2index[word] for word in sentence.split(' ')] # 띄어쓰기 단위로 문장 내 단어를 split(영어 용도) 한 뒤, index로 변환
+
+def tensorFromSentence(lang, sentence):
+    indexes = indexesFromSentence(lang, sentence)
+    indexes.append(EOS_token)
+
+    return torch.tensor(indexes, dtype = torch.lang).view(-1, 1)
+
+def tensorsFromPair(pair):
+    input_tensor = tensorFromSentence(input_lang, pair[0])
+    target_tensor = tensorFromSentence(output_lang, pair[0])
+
+    return (input_tensor, target_tensor)
+
+
+# 헬퍼 함수 : asMinutes, timeSince
+def asMinutes(s):
+    m = math.floor(s / 60)
+    s -= m * 60
+
+    return '%dm %ds' % (m, s)
+
+def timeSince(since, percent):
+    now = time.time()
+    s = now - since
+    es = s / (persent)
+    rs = es - s
+
+    return '%s (- %s)' % (asMinutes(s, asMinutes(rs)))
