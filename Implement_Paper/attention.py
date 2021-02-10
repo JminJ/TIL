@@ -1,9 +1,13 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+import torch.optim as optim
 import time
 import math
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import numpy as np
+plt.switch_backend('agg')
 
 SOS_token = 0
 EOS_token = 1
@@ -65,9 +69,6 @@ class Encoder(nn.Module):
 
     def return_f_hidden(self):
         return torch.zeros(1, 1, self.hidden_size) # gru로 각 state의 output을 얻을 수 없기 때문에 각 문장의 한 단어씩 gru을 돌려 얻기 위해 (batch, seq_len, hidden_size)를 (1, 1, hidden_size)로 만들었다.
-
-    def return_f_cell(self):
-        return torch.zeros(1, 1, self.hidden_size)
 
 
 class Decoder(nn.Module):
@@ -186,3 +187,56 @@ def timeSince(since, percent):
     rs = es - s
 
     return '%s (- %s)' % (asMinutes(s, asMinutes(rs)))
+
+def showPlot(points): # points == trainIter의 plot_losses
+    plt.pigure()
+    fig, ax = plt.subplots()
+    # 주기적인 간격에 이 locator가 tick을 설정한다.
+    loc = ticker.MultipleLocator(base=0.2)
+    ax.yaxis.set_major_locator(loc)
+    plt.plot(points)
+
+
+# train 함수를 돌려주는 함수, 상태 표기 및 그래프를 그린다.
+def trainIters(encoder, decoder, attention, n_iters, print_every = 1000, plot_every = 100, learning_rate = 0.01):
+    # 시작 시간 count
+    start = time.time()
+    plot_losses = []
+    print_loss_total = 0 # print_every 마다 초기화
+    plot_loss_total = 0 # plot_every 마다 초기화
+
+    encoder_optimizer = optim.SGD(encoder.parameters(), lr = learning_rate)
+    decoder_optimizer = optim.SGD(decoder.parameters(), lr = learning_rate)
+    attention_optimizer = optim.SGD(attention.parameters(), lr = learning_rate)
+    training_parirs = [tensorsFromPair(random.choice(pairs)) for i in range(n_iters)]
+    criterion = nn.NLLoss()
+
+    for iter in range(1, n_iters+1):
+        training_pair = training_parirs[iter-1]
+        input_tensor = training_pair[0]
+        target_pair = training_pair[0]
+
+        loss = train(input_tensor, target_tensor, encoder, decoder, attention, encoder_optimizer, decoder_optimizer, attention_optimizer, criterion)
+        print_loss_total += loss
+        plot_loss_total += loss
+
+        if iter % print_every == 0:
+            print_loss_avg = print_loss_total / print_every
+            print_loss_total = 0
+            print('%S (%D %D%%) %.4F' % (timeSince(start, iter / n_iters), iter, iter / n_iters * 100, print_loss_avg))
+
+        if iter % plot_every == 0:
+            plot_loss_avg = plot_loss_total / plot_every
+            plot_losses.append(plot_loss_avg)
+            plot_loss_total = 0
+
+    showPlot(plot_losses)
+
+def evaluate(encoder, decoder, attention, sentence, max_length = MAX_LENGTH):
+    with torch.no_grad():
+        input_tensor = tensorFromSentence(input_lang, sentence)
+        input_length = input_tensor.size()[0]
+        encoder_hidden = encoder.return_f_hidden()
+
+        encoder_outputs = torch.zeros(max_length, encoder.hidden_size)
+        ###
