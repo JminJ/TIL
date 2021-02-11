@@ -7,15 +7,112 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
+import re
 plt.switch_backend('agg')
 
 SOS_token = 0
 EOS_token = 1
+device = torch.device('cpu')
+
+class Lang:
+    def ___init__(self, name):
+        self.name = name
+        self.word2index = {}
+        self.word2count = {}
+        self.index2word = {0: 'SOS', 1: 'EOS'}
+        self.n_words = 2 # SOS, EOS 포함
+    
+    def addSentence(self, sentnece):
+        for word in sentence.split(' '):
+            self.addWord(word)
+
+    def addWord(self, word):
+        if word not in self.word2index:
+            self.wrod2index[word] = self.n_words
+            self.word2count[word] = 1
+            self.index2word[self.n_words] = word
+            self.n_words += 1
+        else:
+            self.word2count[word] += 1
+
+def unicodeToAscii(s):
+    return ''.join(
+        c for c in unicodedata.normalize('NDF', s)
+        if unicodedata.category(c) != 'Mn'
+    )
+
+
+def normalizeString(s):
+    s = unicodeToAscii(s.lower().strip())
+    s = re.sub(r"([.!?])", r"\1", s)
+    s = re.sub(r"[^a-zA-Z.!?]+", r" ", s)
+    return s
+
+
+def readLangs(lang1, lang2, reverse=False):
+    print("Reading lines...")
+
+    # 파일을 읽고 줄로 분리
+    lines = open('data/%s-%s.txt' % (lang1, lang2), encoding='utf-8').\
+        read().strip().split('\n')
+
+    # 모든 줄을 쌍으로 분리하고 정규화
+    pairs = [[normalizeString(s) for s in l.split('\t')] for l in lines]
+
+    # 쌍을 뒤집고, Lang 인스턴스 생성
+    if reverse:
+        pairs = [list(reversed(p)) for p in pairs]
+        input_lang = Lang(lang2)
+        output_lang = Lang(lang1)
+    else:
+        input_lang = Lang(lang1)
+        output_lang = Lang(lang2)
+
+    return input_lang, output_lang, pairs
+
+
+eng_prefixes = (
+    "i am ", "i m ",
+    "he is", "he s ",
+    "she is", "she s ",
+    "you are", "you re ",
+    "we are", "we re ",
+    "they are", "they re "
+)
+
+
+def filterPair(p):
+    return len(p[0].split(' ')) < MAX_LENGTH and \
+        len(p[1].split(' ')) < MAX_LENGTH and \
+        p[1].startswith(eng_prefixes)
+
+
+def filterPairs(pairs):
+    return [pair for pair in pairs if filterPair(pair)]
+
+def prepareData(lang1, lang2, reverse=False):
+    input_lang, output_lang, pairs = readLangs(lang1, lang2, reverse)
+    print("Read %s sentence pairs" % len(pairs))
+    pairs = filterPairs(pairs)
+    print("Trimmed to %s sentence pairs" % len(pairs))
+    print("Counting words...")
+    for pair in pairs:
+        input_lang.addSentence(pair[0])
+        output_lang.addSentence(pair[1])
+    print("Counted words:")
+    print(input_lang.name, input_lang.n_words)
+    print(output_lang.name, output_lang.n_words)
+    return input_lang, output_lang, pairs
+
+
+input_lang, output_lang, pairs = prepareData('eng', 'fra', True)
+print(random.choice(pairs))
+
 
 class attention(nn.Module):
     def __init__(self, Encoder, Decoder, input_size, hidden_size, output_size, dropout_p, n_layers = 2):
         super().__init__()
-        self.input_size = input_size # input_size == embededing size
+        self.input_size = input_size # input_size == vocab size
         self.output_size = output_size
         self.hidden_size = hidden_size
         self.dropout_p = nn.Dropout(dropout_p)
@@ -122,7 +219,7 @@ def train(input_tensor, target_tensor, encoder, decoder, attention, encoder_opti
         encoder_output, encoder_hidden = encoder(input_tensor[i], encoder_hidden)
         encoder_outputs[i] = encoder_output[0][0]
     
-    decoder_input = torch.tensor([[SOS_token]])
+    decoder_input = torch.tensor([[SOS_token]], device = device)
 
     decoder_hidden = encoder_hidden
 
@@ -239,4 +336,39 @@ def evaluate(encoder, decoder, attention, sentence, max_length = MAX_LENGTH):
         encoder_hidden = encoder.return_f_hidden()
 
         encoder_outputs = torch.zeros(max_length, encoder.hidden_size)
-        ###
+        
+        for i in range(input_length):
+            encoder_output, encoder_hidden = encoder(input_tensor[i], encoder_hidden)
+            encoder_outputs[i] += encoder_output[0, 0]
+
+        decoder_input = torch.tensor([[SOS_token]], device = device)
+        
+        decoder_hidden = encoder_hidden
+
+        decoded_words = []
+        decoder_attentions = torch.zeros(max_length, max_length)
+
+        for i in range(max_length):
+            decoder_output, decoder_hidden, decoder_attention = decoder(decoder_input, decoder_hidden, encoder_outputs)
+            decoder_attentions[i] = decoder_attention.data
+            topv, topi = decoder_output.data.topk(1)
+            if topi.item() == EOS_token: # torch.Tensor.item() : 한 값을 포함하고 있는 tensor로 부터 Python number를 가져온다.
+                decoded_words.append('<EOS>')
+                break
+            else:
+                decoded_words.append(output_lang.index2word[topi.item()])
+
+            decoder_input = topi.squeeze().detach()
+
+        return decoded_words, decoder_attentions[:i + 1]
+
+
+def evaluateRandimly(encoder, decoder, n = 10):
+    for i in range(n):
+        pair = random.choice(pairs)
+        print('>', pairs[0])
+        print('=', pair[1])
+        output_words, attentions = evaluate(encoder, decoder, pair[0])
+        output_sentence = ' '.join(output_words)
+        print('<', output_sentence)
+        print('')
