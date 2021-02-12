@@ -363,7 +363,7 @@ def evaluate(encoder, decoder, attention, sentence, max_length = MAX_LENGTH):
         return decoded_words, decoder_attentions[:i + 1]
 
 
-def evaluateRandimly(encoder, decoder, n = 10):
+def evaluateRandomly(encoder, decoder, n = 10):
     for i in range(n):
         pair = random.choice(pairs)
         print('>', pairs[0])
