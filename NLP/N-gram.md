@@ -1,7 +1,8 @@
 # N-gram #
 ---------------
 > **SLM(Statistical Language Model)**
-Neural Language Model이 등장하기 전, Lanuage Model은 통계 기반의 Statistical Language Model(SLM)을 통해 NLP를 수행하였다. 하지만 SLM은 단점이 존재했는데 train corpus에 확률을 계산하고 싶은 문장이나 단어가 없다면 확률을 계산할 수 없다는 것이다. 그러나 참고하는 단어들을 줄인다면 train corpus에서 해당 단어들을 찾을 확률이 올라갈 수 있다.
+>>Neural Language Model이 등장하기 전, Lanuage Model은 통계 기반의 Statistical Language Model(SLM)을 통해 NLP를 수행하였다. 하지만 SLM은 단점이 존재했는데 train corpus에 확률을 계산하고 싶은 문장이나 단어가 없다면 확률을 계산할 수 없다는 것이다. 그러나 참고하는 단어들을 줄인다면 train corpus에서 해당 단어들을 찾을 확률이 올라갈 수 있다.
+
 
 ## N-gram ##
 참고하는 단어들의 수의 개수를 정하기 위한 기준을 위해 사용하는 것이 n-gram이다. n-gram은 n개의 연속적인 단어 나열을 의미한다. n개씩 단어 뭉치로 끊으며 하나의 토큰으로 간주한다. An adorable little boy is spreading smiles라는 문장으로 n에 대해서 n-gram을 구해보자.

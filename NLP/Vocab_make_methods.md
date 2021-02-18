@@ -1,7 +1,7 @@
 # Vocab make methods #
 ------------
 > **vocab**
-단어와 해당 단어의 인덱스를 가지고 있는 사전
+>>단어와 해당 단어의 인덱스를 가지고 있는 사전
 
 ## Methods ##
 ### Chracter level ###
