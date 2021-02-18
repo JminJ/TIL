@@ -60,8 +60,8 @@ Scaled Dot-Prduct Attention은 query, key, value를 각각 Q, K, V라는 인자�
 다시 한번 설명하자면 Multi-Head Attention은 Scaled Dot-Pruduct Attention을 h번 쌓은 레이어다.  즉 동일한 Q, K, V에 각각 다른 weight matrix W를 곱해주는 것이다. Scaled Dot-Product를 d_h dimension의 key, value, query들로 한 번 실행하지 않고 각각 h번 key, value, query에 다른 학습된 linear projection을 수행한 이유는 이 방식이 더욱 성능이 좋고 병렬구조로 한번에 학습이 가능하다.
 
 > Picture를 수식 및 그림으로 표현
-> <img src = "/image/2021_02_18_8.png" width = "65%">
-> <img src = "/image/2021_02_18_9.png" width = "65%">
+>> <img src = "/image/2021_02_18_8.png" width = "60%">
+>> <img src = "/image/2021_02_18_9.png" width = "60%">
 
 ## Self-Attention ##
 
@@ -80,7 +80,7 @@ Encoder의 multi-head attention layer에서 입력값은 Q, K, V이고 이들은
 Encoder의 multi-head attention과는 다르게 masking out을 해준 multi-head attention을 사용하였다. `masking out이 됐다는 말은 i번째 position에 대한 attention을 얻을 때 i번째 이후에 있는 모든 position을 input 값을 -∞으로 설정한 것이다.` **이렇게 하면 i번째  position 이후의 모든 positoin에 attention을 주는 경우가 없을 것이다.**
 
 > masking 그림
-> <img src = "/image\2021_02_18_12.png">
+>> <img src = "/image\2021_02_18_12.png">
 
 * masking out을 적용해주는 이유 : i번째 output을 다시 i+1번째 input으로 사용하는 **auto-regressive한 특성을 유지시키기 위해** masking out을 적용시켜 주었다.
 
@@ -98,7 +98,7 @@ Position-wise Feed-Forward Networks는 `두 번의 linear transformation과 한 
 <img src = "/image\2021_02_18_14.png">
 
 > **수식 자세한 설명**
-> 각 positoin마다 같은 parameter를 사용한다고 했으나 layer마다는 서로 다른 parameter를 사용해 학습한다. 그리고 이는 kernel size가 1인 Convolution Layer를 두 번 사용한 것과 같이 설명할 수 있다.
+>> 각 positoin마다 같은 parameter를 사용한다고 했으나 layer마다는 서로 다른 parameter를 사용해 학습한다. 그리고 이는 kernel size가 1인 Convolution Layer를 두 번 사용한 것과 같이 설명할 수 있다.
 
 ## Embeddings and Softmax ##
 input token과 output token을 dimension이 d_model인 vector로 만들어 주기 위해 learned embedding을 사용한다. 또한 Decoder output를 다음 token의 확률로 바꾸기 위해서도 사용했다.
