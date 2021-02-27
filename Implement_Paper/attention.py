@@ -111,7 +111,7 @@ print(random.choice(pairs))
 
 class attention(nn.Module):
     def __init__(self, Encoder, Decoder, input_size, hidden_size, output_size, dropout_p, n_layers = 2):
-        super().__init__()
+        super(attention, self).__init__()
         self.input_size = input_size # input_size == vocab size
         self.output_size = output_size
         self.hidden_size = hidden_size
@@ -141,7 +141,7 @@ class attention(nn.Module):
 
 class Encoder(nn.Module):
     def __init__(self, input_size, hidden_size, dropout_p, n_layers = 2):
-        super().__init__()
+        super(Encoder, self).__init__()
         
         self.hidden_size = hidden_size
         self.dropout_p = dropout_p
@@ -168,9 +168,9 @@ class Encoder(nn.Module):
         return torch.zeros(1, 1, self.hidden_size) # gru로 각 state의 output을 얻을 수 없기 때문에 각 문장의 한 단어씩 gru을 돌려 얻기 위해 (batch, seq_len, hidden_size)를 (1, 1, hidden_size)로 만들었다.
 
 
-class Decoder(nn.Module):
+class Decoder(nn.Module): # Teacher forcing을 사용하지 않음
     def __init__(self, hidden_size, output_size, dropout_p, n_layers = 2):
-        super().__init__()
+        super(Decoder, self).__init__()
         self.hidden_size = hidden_size
         self.output_size = output_size
         self.dropout_p = dropout_p
