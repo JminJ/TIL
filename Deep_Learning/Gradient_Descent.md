@@ -1,4 +1,4 @@
-# Gradient Dscent #
+# Gradient Descent #
 ------------------
 gradient descent는 함수의 기울기를 이용하여 x의 값을 어디로 옮겼을 때 함수가 최소값을 찾는지 알아내는 방법이다.
 
