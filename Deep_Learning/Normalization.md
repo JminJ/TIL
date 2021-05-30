@@ -20,16 +20,16 @@
 
 - data input을 정규화함으로써 Weight, bias의 학습을 안정적이고 빠르게 할 수 있다.
 
-    ![https://s3-us-west-2.amazonaws.com/secure.notion-static.com/e813b8c8-64a4-49da-836f-5e5aecd01a68/_2021-05-30__6.45.40.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/e813b8c8-64a4-49da-836f-5e5aecd01a68/_2021-05-30__6.45.40.png)
+    <img src = '/image/2021_05_30_01.png' width='70%'>
 
 - 위 그림을 보면 오른쪽의 경우 분포가 응집되어있는 것을 파악할 수 있다.
 - 학습을 진행할 경우에도 normalization되지 않은 경우에는 learning rate의 변동에 따라 수렴이 되지 않는 경우가 존재한다.
 
-    ![https://s3-us-west-2.amazonaws.com/secure.notion-static.com/20cb0db3-063e-4755-99f4-35b358d3f401/_2021-05-30__6.52.56.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/20cb0db3-063e-4755-99f4-35b358d3f401/_2021-05-30__6.52.56.png)
+    <img src = '/image/2021_05_30_02.png' width='70%'>
 
 - normalization된 경우에는 learning rate의 변동에도 안정적이고 효율적으로 학습을 하는 모습을 볼 수 있다.
 
-    ![https://s3-us-west-2.amazonaws.com/secure.notion-static.com/d86fd1e0-59ea-470e-bb5d-93471a01cff3/_2021-05-30__6.52.28.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/d86fd1e0-59ea-470e-bb5d-93471a01cff3/_2021-05-30__6.52.28.png)
+    <img src = '/image/2021_05_30_03.png' width='70%'>
 
 ---
 
