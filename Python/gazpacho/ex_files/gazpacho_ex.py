@@ -11,4 +11,4 @@ def parse(book):
     price = float(book.find('p').text[1:].split(' ')[0])
     return name, price
 
-[parse(book) for book in books]
+print([parse(book) for book in books])
