@@ -28,7 +28,7 @@ Good Morning, John
 위 예시는 student라는 instance내의 instance method인 greet를 사용하는 것이 아닌 Student class 자체의 greet method를 사용한 예시이다. self인자 자리에 instance인 student가 들어가 있는 것을 확인할 수 있을 것이다.
 * 또 하나 중요한 내용은 instance student 자체에서 greet method를 가지고 있는 것이 아니라 Student class의 greet를 호출해 사용한다는 것이다. (자세한 설명은 하단 출처를 참고하자)
 
-<img src="/image/스크린샷 2022-11-29 오후 9.39.28.png" width="70%">
+<img src="/image/2022_11_29_01.png" width="70%">
 
 ## Is self a Keyword?
 * Keyword? : 파이썬에서 이미 예약되어있는 문자열로서 다른 용도로 사용이 불가능한 문자열이다.
