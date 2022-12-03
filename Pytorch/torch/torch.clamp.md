@@ -8,6 +8,9 @@
 <img src = "/image/2021_02_24_01.png">
 
 - 만약 input이 FloatTensor 혹은 DoubleTensor의 타입일 경우, 매개변수 min, max는 실수이어야 하고, 다른 경우는 정수여야 한다.
+```md
+NOTE) 만약 *min*이 *max*보다 클 경우, torch.clamp(..., min, max)는 input의 모든 element들에 대해 *max*의 값을 기준으로 결과를 낼 것이다.
+```
 
 ## Parameters
 
