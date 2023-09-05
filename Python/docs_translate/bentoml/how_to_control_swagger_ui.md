@@ -30,7 +30,7 @@ class ExFeatures(BaseModel):
   class Config:
 		schema_extra = {
 			"example": {
-				"title" : "일루넥스, 깃발 서비스를 론칭하다."
+				"title" : "삼성전자, 삼성페이 서비스를 론칭하다."
 			}
 		}
 
