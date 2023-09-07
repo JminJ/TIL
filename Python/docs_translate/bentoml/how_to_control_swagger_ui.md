@@ -40,3 +40,81 @@ svc = bentoml.Service("...", runners=[...])
 def classify(input_data:ExFeatures):
 	...
 ```
+
+### Error Handling
+
+api의 인자값으로 요구되는 “title”이 없을 경우 어떻게 에러를 처리할 수 있을까요? pydantic의 root_validator 데코레이터를 통해 처리를 할 수 있습니다.
+
+```python
+import bentoml
+from bentoml.io import JSON
+from pydantic import BaseModel, root_validator
+
+class ExFeatures(BaseModel):
+	# json key들을 선언
+	title: str
+	error_code: Optional[str] = None
+	# 추가 옵션을 기입(example 등)
+	
+	@root_validator(pre=True)
+	def check_key(cls, values):
+		keys = values.keys()
+		if "title" not in keys:
+			values["error_code"] = "NOT_IN_TITLE"
+
+		return values
+	
+  class Config:
+		schema_extra = {
+			"example": {
+				"title" : "삼성전자, 삼성페이 서비스를 론칭하다."
+			}
+		}
+```
+
+check_key함수 내의 values는 endpoint에서 입력한 json을 dict로 변환한 값입니다. 따라서 key값을 추출할 수 있고 필요한 키가 keys에 들어있는지 확인이 가능합니다.
+ 
+
+```python
+import bentoml
+import json
+from bentoml.io import JSON
+from pydantic import BaseModel, root_validator
+from typing import Optional
+
+class ExFeatures(BaseModel):
+	# json key들을 선언
+	title: str
+	error_code: Optional[str] = None
+	# 추가 옵션을 기입(example 등)
+	
+	@root_validator(pre=True)
+	def check_key(cls, values):
+		keys = values.keys()
+		if "title" not in keys:
+			values["error_code"] = "NOT_IN_TITLE"
+
+		return values
+	
+  class Config:
+		schema_extra = {
+			"example": {
+				"title" : "삼성전자, 삼성페이 서비스를 론칭하다."
+			}
+		}
+
+@svc.api(input=JSON(pydantic_model=ExFeatures), output=JSON()) # pydantic_model인자에 위에서 선언한 ExFeatures 클래스를 넣어줍니다
+def classify(input_data):
+	try:
+		if input_data.error_code == "NOT_IN_TITLE":
+			raise ValueError("title인자가 입력되지 않았습니다")
+		...
+	except ValueError:
+     return json.dump({"status" : -1, "detail" : "title 인자를 입력해 주십시오"}, ensure_ascii=False)
+```
+
+위와 같이 check_key함수를 통해 error_code의 값을 지정해 주고 classify 함수 내에서 error_code의 값이 특정 값일 경우 Error를 raise해 endpoint에 문제 상황을 전달 할 수 있습니다.
+
+### 참고
+
+- https://docs.bentoml.com/en/latest/reference/api_io_descriptors.html#structured-data-with-json
